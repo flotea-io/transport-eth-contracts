@@ -1,0 +1,17 @@
+{
+  "name": "transport-eth-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "merge": "sol-merger \"./contracts/merge.sol\" ./merge",
+    "compile": "\"./node_modules/\".bin/truffle compile",
+    "abi": "./node_modules/.bin/solcjs --abi -o ./build ./contracts/Transport.sol ./contracts/Trip.sol ./contracts/TransportH.sol ./contracts/CarriersInterface.sol ./contracts/VotingCarrier.sol ./contracts/FloteaToken.sol ./contracts/SafeMath.sol ./contracts/ERC20.sol ./contracts/ERC223Token.sol ./contracts/Ownable.sol ./contracts/ERC223_receiving_contract.sol" 
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "sol-merger": "^2.0.1",
+    "solc": "^0.5.1",
+    "truffle": "^5.1.23"
+  }
+}

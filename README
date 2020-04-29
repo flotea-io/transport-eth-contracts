@@ -1,0 +1,10 @@
+npm install
+
+npm run migrate
+- Merges all contracts into a single file for easy import into https://remix.ethereum.org/
+
+npm run compile 
+- Uses truffle to compile .sol files in the contracts folder and saves the created JSON files to the build folder.
+
+npm run abi
+- Generate abi files, for golang abigen https://github.com/ethereum/go-ethereum/tree/master/cmd/abigen
