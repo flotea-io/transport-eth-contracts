@@ -1,3 +1,9 @@
+/*
+* Project: FLOTEA - Decentralized passenger transport system
+* Copyright (c) 2020 Flotea, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENSE
+*/
+
 pragma solidity ^0.5.1;
 
 import './SafeMath.sol';
@@ -11,7 +17,7 @@ contract ERC223Token is ERC20{
     using SafeMath for uint;
     event Transfer(address indexed from, address indexed to, uint value, bytes data);
     mapping(address => uint) balances; // List of user balances.
-    
+
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
      *      Invokes the `tokenFallback` function if the recipient is a contract.
@@ -41,7 +47,7 @@ contract ERC223Token is ERC20{
         }
         emit Transfer(msg.sender, _to, _value, _data);
     }
-    
+
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
      *      This function works the same with the previous one
@@ -69,7 +75,7 @@ contract ERC223Token is ERC20{
         emit Transfer(msg.sender, _to, _value, empty);
     }
 
-    
+
     /**
      * @dev Returns balance of the `_owner`.
      *

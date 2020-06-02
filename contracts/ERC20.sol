@@ -1,3 +1,9 @@
+/*
+* Project: FLOTEA - Decentralized passenger transport system
+* Copyright (c) 2020 Flotea, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENSE
+*/
+
 pragma solidity ^0.5.1;
 
 import './SafeMath.sol';
@@ -14,7 +20,7 @@ contract ERC20 {
 
   event Transfer(address indexed _from, address indexed _to, uint256 value);
   event Approval(address indexed _owner, address indexed _spender, uint256 value);
-  
+
   /**
    * Token transfer function
    * @dev transfer token for a specified address
@@ -45,7 +51,7 @@ contract ERC20 {
   }
 
   /**
-   * Token balanceOf function 
+   * Token balanceOf function
    * @dev Gets the balance of the specified address.
    * @param _owner address to get balance of.
    * @return uint256 amount owned by the address.

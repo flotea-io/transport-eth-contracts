@@ -1,3 +1,9 @@
+/*
+* Project: FLOTEA - Decentralized passenger transport system
+* Copyright (c) 2020 Flotea, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENSE
+*/
+
 pragma solidity ^0.5.1;
 
 import "./SafeMath.sol";
@@ -14,11 +20,11 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
   using SafeMath for uint256;
 
   uint256 public constant initialTokens = 72 * 10**6 * 10**3;
-  
+
   uint public phase = 0;
   uint256[2][7] public phaseInfo;
 
-  
+
   bool public initialized = false;
   bool public enabled = false;
   uint256 public startTime = 0;
@@ -38,17 +44,17 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
     assert(isActive());
     _;
   }
-  
+
   /**
    * FloteaICO
    * @dev FloteaICO constructor
    **/
   constructor(address _tokenAddr, address[] memory _participates, bytes32[] memory names) public {
       token = FloteaToken(_tokenAddr);
-      
+
       require(_participates.length == names.length, "Count of participates and names must be same");
       require(_participates.length > 2, "Count of participates must be more than 2");
-        
+
       for(uint i = 0; _participates.length > i; i++){
           participants.push(Participant( names[i], _participates[i] ));
       }
@@ -61,8 +67,8 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
       phaseInfo[4] = [104700000000 * 5 , 1 * 10**6 * 1000];
       phaseInfo[5] = [104700000000 * 6 , 1 * 10**6 * 1000];
       phaseInfo[6] = [104700000000 * 10 , 60 * 10**6 * 1000];
-  }  
-  
+  }
+
   /**
    * initialize
    * @dev Initialize the contract
@@ -92,7 +98,7 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
   function info() public view returns (uint, uint, uint, uint, bool, bool, uint[] memory, uint[] memory, uint ){
   uint[] memory prices = new uint[](phaseInfo.length);
   uint[] memory tokens = new uint[](phaseInfo.length);
-  
+
   for (uint i = 0; i < phaseInfo.length; i++) {
     prices[i] = phaseInfo[i][0];
     tokens[i] = phaseInfo[i][1];
@@ -163,7 +169,7 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
     }
     return 0;
   }
-  
+
 
   function getPrice(uint amount) public view returns (uint){
     if(initialized == false)
@@ -180,7 +186,7 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
       if(freeTokensInPhase > 0){
         if(freeTokensInPhase >= amount){
           return (price + amount * phaseInfo[p][0]);
-        } 
+        }
         else{
           price += freeTokensInPhase * phaseInfo[p][0];
           amount -= freeTokensInPhase;
@@ -236,10 +242,10 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
     phase = getPhase();
     return true;
   }
-  
+
 
   // je potřeba aby se tal token koupit přes ETH i přes Backend přes vlastníka
-  
+
 
   /**
    * buyTokens
@@ -253,13 +259,13 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
       revert("Error, too little amount of ethereum");
 
     raisedAmount = raisedAmount.add(msg.value); // Increment raised amount
-    
+
     if(tokens > 0)
       token.transfer(msg.sender, tokens); // Send tokens to buyer
     else
       msg.sender.transfer(msg.value);
 
-    
+
     emit BoughtTokens(msg.sender, tokens); // log event onto the blockchain*/
     //owner.transfer(msg.value);// Send money to owner
 
@@ -276,7 +282,7 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
 
   function tokenFallback(address _from, uint _value, bytes memory _data) public {
   }
-  
+
   function weiAvailable() public view returns (uint256) {
       return address(this).balance;
   }

@@ -1,3 +1,9 @@
+/*
+* Project: FLOTEA - Decentralized passenger transport system
+* Copyright (c) 2020 Flotea, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENSE
+*/
+
 pragma solidity ^0.5.1;
 
 import "./SafeMath.sol";
@@ -9,14 +15,14 @@ contract VotingIco {
     event Vote(bytes32 description, uint proposalIndex, address addr, uint8 vote);
     event FinishVoting(bytes32 description, bool result, uint proposalIndex);
     event ProposalCreated(bytes32 description, uint endTime, ActionType actionType, address actionAddress, bytes32 name, uint amount, uint proposalIndex);
-    
+
     enum ActionType {add_voter, remove_voter, transfer_eth, transfer_flt}
 
     struct VoteStatus {
         bool voted;
         uint8 vote; // 0 no 1 yes 2 resignation
     }
-    
+
     struct Proposal {
         bytes32 description;
         uint endTime;
@@ -32,23 +38,23 @@ contract VotingIco {
         bytes32 name;
         address addr;
     }
-    
+
     struct ParticipantVote {
         bytes32 name;
         address addr;
         uint8 vote;
     }
-        
+
     address payable public owner;
     Participant[] public participants;
     Proposal[] public proposals;
-    
+
     /*
     constructor(address[] memory _participates, bytes32[] memory names) public {
-        
+
         require(_participates.length == names.length, "Count of participates and names must be same");
         require(_participates.length > 2, "Count of participates must be more than 2");
-        
+
         for(uint i = 0; _participates.length > i; i++){
             participants.push(Participant( names[i], _participates[i] ));
         }
@@ -68,7 +74,7 @@ contract VotingIco {
             return(true, "Minimal count of participants is 2");
         return(false, "ok");
     }
-    
+
     function createProposal( bytes32 _description, uint _durationHours, ActionType _actionType, address payable _actionAddress, bytes32 _name, uint _amount) public {
         (bool error, string memory message) = beforeCreateProposal(_actionType, _actionAddress, msg.sender);
         require (!error, message);
@@ -79,7 +85,7 @@ contract VotingIco {
         );
         emit ProposalCreated(_description, time, _actionType, _actionAddress, _name, _amount, proposals.length-1);
     }
-    
+
     function beforeVoteInProposal (uint proposalIndex, address senderAddress) public view returns(bool, string memory) {
         uint index = findParticipantIndex(senderAddress);
         if(index == 0)
@@ -103,14 +109,14 @@ contract VotingIco {
         emit Vote(proposals[proposalIndex].description, proposalIndex, msg.sender, vote);
     }
 
-    function beforeFinishProposal (uint proposalIndex, address senderAddress) public view 
+    function beforeFinishProposal (uint proposalIndex, address senderAddress) public view
     returns(bool error, string memory message, uint votedYes, uint votedNo) {
         uint index = findParticipantIndex(senderAddress);
         uint _votedYes = 0;
         uint _votedNo = 0;
         uint _voted = 0;
         uint _carrierVotersLength = participants.length;
-        
+
         for(uint i = 0; _carrierVotersLength > i; i++){
             if( proposals[proposalIndex].status[participants[i].addr].voted ){
                 _voted++;
@@ -139,7 +145,7 @@ contract VotingIco {
             return(true, "Count of voted participants must be more than 50%", _votedYes, _votedNo);
         return(false, "ok", _votedYes, _votedNo);
     }
-    
+
     function finishProposal(uint proposalIndex) public {
         (bool error, string memory message, uint votedYes, uint votedNo) = beforeFinishProposal(proposalIndex, msg.sender);
         require (!error, message);
@@ -150,12 +156,12 @@ contract VotingIco {
             if(proposals[proposalIndex].actionType == ActionType.add_voter){ // Add participant
                 require(findParticipantIndex(proposals[proposalIndex].actionAddress) == 0, "This participant already exist");
                 participants.push( Participant(proposals[proposalIndex].name, proposals[proposalIndex].actionAddress));
-            } 
+            }
             else if (proposals[proposalIndex].actionType == ActionType.remove_voter) { // Remove participant
                 uint index = findParticipantIndex(proposals[proposalIndex].actionAddress) - 1;
                 participants[index] = participants[participants.length-1]; // Copy last item on removed position and
                 participants.length--; // decrease length
-            } 
+            }
             else if (proposals[proposalIndex].actionType == ActionType.transfer_eth) { // Transfer ETH
                 proposals[proposalIndex].actionAddress.transfer(proposals[proposalIndex].amount);
             }
@@ -175,13 +181,13 @@ contract VotingIco {
         uint pom = 0;
         for(uint i = 0; participants.length > i; i++){
             if(proposals[index].status[participants[i].addr].voted){
-                addr[pom] = participants[i].addr; 
+                addr[pom] = participants[i].addr;
                 name[pom] = participants[i].name;
                 vote[pom] = proposals[index].status[participants[i].addr].vote;
                 pom++;
             }
         }
-        
+
         return (addr, name, vote);
     }
 
@@ -192,7 +198,7 @@ contract VotingIco {
     function participantsLength () public view returns (uint) {
         return participants.length;
     }
-    
+
     function findParticipantIndex(address addr) private view returns (uint) {
         for(uint i = 0; participants.length > i; i++){
             if(participants[i].addr == addr)

@@ -1,3 +1,9 @@
+/*
+* Project: FLOTEA - Decentralized passenger transport system
+* Copyright (c) 2020 Flotea, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENSE
+*/
+
 pragma solidity ^0.5.1;
 
 import "./Trip.sol";
@@ -24,9 +30,9 @@ contract TransportH {
 
     event NewCarrier(address _companyWallet, bytes32 _company, bytes32 _web, uint _index);
     event CarrierUpdated(address _companyWallet, bytes32 _company, bytes32 _web, uint _index);
-    
+
     event TripEvent(address _trip, uint _tripId, string _eventType);
-    
+
     event PurchasedTickets(address _trip, uint _tripId, uint _tickets, address _buyerAddr, uint _price, uint _time);
     event RefundedTickets(address _trip, uint _tripId, uint _tickets, address _buyerAddr);
 
@@ -38,7 +44,7 @@ contract TransportH {
     TripStruct[] public trips;
 
     function emitTripUpdateEvent(uint _tripId, string memory updateType) public onlyTrip{
-        emit TripEvent(msg.sender, _tripId, updateType); 
+        emit TripEvent(msg.sender, _tripId, updateType);
     }
 
     function emitPurchasedTicket (uint _tripId, uint _tickets, address _buyerAddr, uint _price, uint _time) public onlyTrip{

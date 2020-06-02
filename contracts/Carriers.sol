@@ -1,3 +1,9 @@
+/*
+* Project: FLOTEA - Decentralized passenger transport system
+* Copyright (c) 2020 Flotea, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENSE
+*/
+
 pragma solidity ^0.5.1;
 //pragma experimental ABIEncoderV2;
 
@@ -13,7 +19,7 @@ contract Carriers is CarriersInterface{
         bytes32 web;
         bool enabled;
         address[] trips;
-        bool exist; 
+        bool exist;
     }
 
     Carrier[] public carriers;
@@ -27,7 +33,7 @@ contract Carriers is CarriersInterface{
 
     function init() public {
         require(address(transport) == address(0), "Contract is already initialized");
-        transport = Transport(msg.sender); 
+        transport = Transport(msg.sender);
     }
 
     function updateCarrier(bytes32 _company, bytes32 _web) public {
@@ -44,7 +50,7 @@ contract Carriers is CarriersInterface{
     }
 
     function carrierLength() public view returns(uint length){
-        return carriers.length;    
+        return carriers.length;
     }
 
     function getCarrierId(address _companyWallet) public view returns(uint carrierId){
@@ -57,10 +63,10 @@ contract Carriers is CarriersInterface{
         uint id = carriersId[_companyWallet];
         return (carriers[id].companyWallet == _companyWallet, id);
     }
-    
+
     function getCarrierData(address _companyWallet) public view returns(bool exist, uint id, bytes32 company, bytes32 web){
         uint _id = carriersId[_companyWallet];
-        if(_id == carriers.length || carriers[_id].companyWallet != _companyWallet) 
+        if(_id == carriers.length || carriers[_id].companyWallet != _companyWallet)
             return (false, _id, "", "");
         else
             return (true, _id, carriers[_id].company, carriers[_id].web);
@@ -83,9 +89,9 @@ contract Carriers is CarriersInterface{
 
     function addCarrier( bytes32 _company, bytes32 _web, address payable _companyWallet ) public {
         require(msg.sender == votingCarrierAddress, "Only contract VotingCarrier can call this method");
-        address[] memory _trips; 
+        address[] memory _trips;
         transport.emitCarrier(true, _companyWallet, _company, _web, carriers.length);
-  
+
         carriersId[_companyWallet] = carriers.length;
         carriers.push(Carrier(_companyWallet, _company, _web, true, _trips, true));
     }
@@ -102,5 +108,5 @@ contract Carriers is CarriersInterface{
         require(msg.sender == address(transport), "Only contract VotingCarrier can call this method");
     	carriers[_carrierId].trips.push(_tripAddress);
     }
- 
+
 }

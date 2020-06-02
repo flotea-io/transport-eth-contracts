@@ -1,3 +1,9 @@
+/*
+* Project: FLOTEA - Decentralized passenger transport system
+* Copyright (c) 2020 Flotea, All Rights Reserved
+* For conditions of distribution and use, see copyright notice in LICENSE
+*/
+
 pragma solidity ^0.5.1;
 
 
@@ -11,7 +17,7 @@ library SafeMath {
     assert(a == 0 || c / a == b);
     return c;
   }
-  
+
   /**
    * SafeMath div funciotn
    * @dev function for safe devide
@@ -20,7 +26,7 @@ library SafeMath {
     uint256 c = a / b;
     return c;
   }
-  
+
   /**
    * SafeMath sub function
    * @dev function for safe subtraction
@@ -29,9 +35,9 @@ library SafeMath {
     assert(b <= a);
     return a - b;
   }
-  
+
   /**
-   * SafeMath add fuction 
+   * SafeMath add fuction
    * @dev function for safe addition
    **/
   function add(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -50,7 +56,7 @@ contract ERC20 {
 
   event Transfer(address indexed _from, address indexed _to, uint256 value);
   event Approval(address indexed _owner, address indexed _spender, uint256 value);
-  
+
   /**
    * Token transfer function
    * @dev transfer token for a specified address
@@ -81,7 +87,7 @@ contract ERC20 {
   }
 
   /**
-   * Token balanceOf function 
+   * Token balanceOf function
    * @dev Gets the balance of the specified address.
    * @param _owner address to get balance of.
    * @return uint256 amount owned by the address.
@@ -119,7 +125,7 @@ contract ERC20 {
   }
 }
 
-contract ERC223ReceivingContract { 
+contract ERC223ReceivingContract {
 /**
  * @dev Standard ERC223 function that will handle incoming token transfers.
  *
@@ -134,7 +140,7 @@ contract ERC223Token is ERC20{
     using SafeMath for uint;
     event Transfer(address indexed from, address indexed to, uint value, bytes data);
     mapping(address => uint) balances; // List of user balances.
-    
+
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
      *      Invokes the `tokenFallback` function if the recipient is a contract.
@@ -164,7 +170,7 @@ contract ERC223Token is ERC20{
         }
         emit Transfer(msg.sender, _to, _value, _data);
     }
-    
+
     /**
      * @dev Transfer the specified amount of tokens to the specified address.
      *      This function works the same with the previous one
@@ -192,7 +198,7 @@ contract ERC223Token is ERC20{
         emit Transfer(msg.sender, _to, _value, empty);
     }
 
-    
+
     /**
      * @dev Returns balance of the `_owner`.
      *
@@ -257,14 +263,14 @@ contract VotingIco {
     event Vote(bytes32 description, uint proposalIndex, address addr, uint8 vote);
     event FinishVoting(bytes32 description, bool result, uint proposalIndex);
     event ProposalCreated(bytes32 description, uint endTime, ActionType actionType, address actionAddress, bytes32 name, uint amount, uint proposalIndex);
-    
+
     enum ActionType {add_voter, remove_voter, transfer_eth, transfer_flt}
 
     struct VoteStatus {
         bool voted;
         uint8 vote; // 0 no 1 yes 2 resignation
     }
-    
+
     struct Proposal {
         bytes32 description;
         uint endTime;
@@ -280,23 +286,23 @@ contract VotingIco {
         bytes32 name;
         address addr;
     }
-    
+
     struct ParticipantVote {
         bytes32 name;
         address addr;
         uint8 vote;
     }
-        
+
     address payable public owner;
     Participant[] public participants;
     Proposal[] public proposals;
-    
+
     /*
     constructor(address[] memory _participates, bytes32[] memory names) public {
-        
+
         require(_participates.length == names.length, "Count of participates and names must be same");
         require(_participates.length > 2, "Count of participates must be more than 2");
-        
+
         for(uint i = 0; _participates.length > i; i++){
             participants.push(Participant( names[i], _participates[i] ));
         }
@@ -316,7 +322,7 @@ contract VotingIco {
             return(true, "Minimal count of participants is 2");
         return(false, "ok");
     }
-    
+
     function createProposal( bytes32 _description, uint _durationHours, ActionType _actionType, address payable _actionAddress, bytes32 _name, uint _amount) public {
         (bool error, string memory message) = beforeCreateProposal(_actionType, _actionAddress, msg.sender);
         require (!error, message);
@@ -327,7 +333,7 @@ contract VotingIco {
         );
         emit ProposalCreated(_description, time, _actionType, _actionAddress, _name, _amount, proposals.length-1);
     }
-    
+
     function beforeVoteInProposal (uint proposalIndex, address senderAddress) public view returns(bool, string memory) {
         uint index = findParticipantIndex(senderAddress);
         if(index == 0)
@@ -351,14 +357,14 @@ contract VotingIco {
         emit Vote(proposals[proposalIndex].description, proposalIndex, msg.sender, vote);
     }
 
-    function beforeFinishProposal (uint proposalIndex, address senderAddress) public view 
+    function beforeFinishProposal (uint proposalIndex, address senderAddress) public view
     returns(bool error, string memory message, uint votedYes, uint votedNo) {
         uint index = findParticipantIndex(senderAddress);
         uint _votedYes = 0;
         uint _votedNo = 0;
         uint _voted = 0;
         uint _carrierVotersLength = participants.length;
-        
+
         for(uint i = 0; _carrierVotersLength > i; i++){
             if( proposals[proposalIndex].status[participants[i].addr].voted ){
                 _voted++;
@@ -387,7 +393,7 @@ contract VotingIco {
             return(true, "Count of voted participants must be more than 50%", _votedYes, _votedNo);
         return(false, "ok", _votedYes, _votedNo);
     }
-    
+
     function finishProposal(uint proposalIndex) public {
         (bool error, string memory message, uint votedYes, uint votedNo) = beforeFinishProposal(proposalIndex, msg.sender);
         require (!error, message);
@@ -398,12 +404,12 @@ contract VotingIco {
             if(proposals[proposalIndex].actionType == ActionType.add_voter){ // Add participant
                 require(findParticipantIndex(proposals[proposalIndex].actionAddress) == 0, "This participant already exist");
                 participants.push( Participant(proposals[proposalIndex].name, proposals[proposalIndex].actionAddress));
-            } 
+            }
             else if (proposals[proposalIndex].actionType == ActionType.remove_voter) { // Remove participant
                 uint index = findParticipantIndex(proposals[proposalIndex].actionAddress) - 1;
                 participants[index] = participants[participants.length-1]; // Copy last item on removed position and
                 participants.length--; // decrease length
-            } 
+            }
             else if (proposals[proposalIndex].actionType == ActionType.transfer_eth) { // Transfer ETH
                 proposals[proposalIndex].actionAddress.transfer(proposals[proposalIndex].amount);
             }
@@ -423,13 +429,13 @@ contract VotingIco {
         uint pom = 0;
         for(uint i = 0; participants.length > i; i++){
             if(proposals[index].status[participants[i].addr].voted){
-                addr[pom] = participants[i].addr; 
+                addr[pom] = participants[i].addr;
                 name[pom] = participants[i].name;
                 vote[pom] = proposals[index].status[participants[i].addr].vote;
                 pom++;
             }
         }
-        
+
         return (addr, name, vote);
     }
 
@@ -440,7 +446,7 @@ contract VotingIco {
     function participantsLength () public view returns (uint) {
         return participants.length;
     }
-    
+
     function findParticipantIndex(address addr) private view returns (uint) {
         for(uint i = 0; participants.length > i; i++){
             if(participants[i].addr == addr)
@@ -455,11 +461,11 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
   using SafeMath for uint256;
 
   uint256 public constant initialTokens = 72 * 10**6 * 10**3;
-  
+
   uint public phase = 0;
   uint256[2][7] public phaseInfo;
 
-  
+
   bool public initialized = false;
   bool public enabled = false;
   uint256 public startTime = 0;
@@ -479,17 +485,17 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
     assert(isActive());
     _;
   }
-  
+
   /**
    * FloteaICO
    * @dev FloteaICO constructor
    **/
   constructor(address _tokenAddr, address[] memory _participates, bytes32[] memory names) public {
       token = FloteaToken(_tokenAddr);
-      
+
       require(_participates.length == names.length, "Count of participates and names must be same");
       require(_participates.length > 2, "Count of participates must be more than 2");
-        
+
       for(uint i = 0; _participates.length > i; i++){
           participants.push(Participant( names[i], _participates[i] ));
       }
@@ -502,8 +508,8 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
       phaseInfo[4] = [104700000000 * 5 , 1 * 10**6 * 1000];
       phaseInfo[5] = [104700000000 * 6 , 1 * 10**6 * 1000];
       phaseInfo[6] = [104700000000 * 10 , 60 * 10**6 * 1000];
-  }  
-  
+  }
+
   /**
    * initialize
    * @dev Initialize the contract
@@ -533,7 +539,7 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
   function info() public view returns (uint, uint, uint, uint, bool, bool, uint[] memory, uint[] memory, uint ){
   uint[] memory prices = new uint[](phaseInfo.length);
   uint[] memory tokens = new uint[](phaseInfo.length);
-  
+
   for (uint i = 0; i < phaseInfo.length; i++) {
     prices[i] = phaseInfo[i][0];
     tokens[i] = phaseInfo[i][1];
@@ -604,7 +610,7 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
     }
     return 0;
   }
-  
+
 
   function getPrice(uint amount) public view returns (uint){
     if(initialized == false)
@@ -621,7 +627,7 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
       if(freeTokensInPhase > 0){
         if(freeTokensInPhase >= amount){
           return (price + amount * phaseInfo[p][0]);
-        } 
+        }
         else{
           price += freeTokensInPhase * phaseInfo[p][0];
           amount -= freeTokensInPhase;
@@ -677,10 +683,10 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
     phase = getPhase();
     return true;
   }
-  
+
 
   // je potřeba aby se tal token koupit přes ETH i přes Backend přes vlastníka
-  
+
 
   /**
    * buyTokens
@@ -694,13 +700,13 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
       revert("Error, too little amount of ethereum");
 
     raisedAmount = raisedAmount.add(msg.value); // Increment raised amount
-    
+
     if(tokens > 0)
       token.transfer(msg.sender, tokens); // Send tokens to buyer
     else
       msg.sender.transfer(msg.value);
 
-    
+
     emit BoughtTokens(msg.sender, tokens); // log event onto the blockchain*/
     //owner.transfer(msg.value);// Send money to owner
 
@@ -717,7 +723,7 @@ contract FloteaICO is Ownable, VotingIco, ERC223ReceivingContract {
 
   function tokenFallback(address _from, uint _value, bytes memory _data) public {
   }
-  
+
   function weiAvailable() public view returns (uint256) {
       return address(this).balance;
   }
@@ -738,16 +744,16 @@ contract CarriersInterface {
 }
 
 contract VotingCarrier {
-    
+
     event VoteCarrier(uint proposalIndex, address addr, uint8 vote);
     event FinishVotingCarrier(bool result, uint proposalIndex, uint votedYes, uint votedNo, uint resigned, uint totalVoters);
     event CarrierProposalCreated(bytes32 name, bytes32 web, uint endTime, uint8 actionType, address actionAddress, uint proposalIndex);
-    
+
     struct VoteCarrierStatus {
         bool voted;
         uint8 vote; // 0 no 1 yes 2 resigned
     }
-    
+
     struct CarrierProposal {
         bytes32 name;  // name of added carrier
         bytes32 web;
@@ -762,18 +768,18 @@ contract VotingCarrier {
         address payable addr;
         bool enabled;
     }
-    
+
     struct CarrierVoterVote {
         bytes32 name;
         address addr;
         uint8 vote;
     }
-    
+
     CarriersInterface carriers;
     address payable public owner;
     CarrierVoter[] public carrierVoters;
     CarrierProposal[] public carrierProposals;
-    
+
     constructor(address payable firstVoter, address payable secondVoter) public {
         carrierVoters.push(CarrierVoter( firstVoter, true ));
         carrierVoters.push(CarrierVoter( secondVoter, true ));
@@ -784,8 +790,8 @@ contract VotingCarrier {
         require(address(carriers) == address(0), "Contract is already initialized");
         carriers = CarriersInterface(_carriersAddress);
     }
-    
-    
+
+
     function beforeCreateCarrierProposal(uint8 _actionType, address payable _actionAddress) public view returns(bool, string memory) {
         uint index = findCarrierVoterIndex(_actionAddress);
         if(_actionType == 0 && index != 0 && carrierVoters[index-1].enabled)
@@ -798,12 +804,12 @@ contract VotingCarrier {
     }
 
     function createCarrierProposal( bytes32 _name, bytes32 _web, uint8 _actionType, address payable _actionAddress) public{
-     
+
         (bool error, string memory message) = beforeCreateCarrierProposal(_actionType, _actionAddress);
         require (!error, message);
 
         /* for production 14 days */
-        uint time = now + 1 hours; 
+        uint time = now + 1 hours;
         carrierProposals.push(
             CarrierProposal(_name, _web , time, 2,  _actionType, _actionAddress)
         );
@@ -826,7 +832,7 @@ contract VotingCarrier {
             return(true, "You are already voted");
         return(false, "ok");
     }
-    
+
     function voteInCarrierProposal (uint proposalIndex, uint8 vote) public {
         (bool error, string memory message) = beforeVoteInCarrierProposal(proposalIndex, msg.sender);
         require (!error, message);
@@ -835,17 +841,17 @@ contract VotingCarrier {
         emit VoteCarrier(proposalIndex, msg.sender, vote);
     }
 
-    function beforeFinishCarrierProposal (uint proposalIndex) public view 
+    function beforeFinishCarrierProposal (uint proposalIndex) public view
     returns(bool error, string memory message, uint votedYes, uint votedNo, uint resigned) {
         uint _votedYes = 0;
         uint _votedNo = 0;
         uint _resigned = 0;
         uint _voted = 0;
         uint _carrierVotersLength = carrierVoters.length;
-        
+
         if(carrierProposals.length <= proposalIndex)
             return(true, "Proposal not exist", _votedYes, _votedNo, _resigned);
-        
+
         for(uint i = 0; _carrierVotersLength > i; i++){
             if( carrierProposals[proposalIndex].status[carrierVoters[i].addr].voted ){
                 _voted++;
@@ -866,8 +872,8 @@ contract VotingCarrier {
             return(true, "Minimal count of participants is 2", _votedYes, _votedNo, _resigned);
         return(false, "ok", _votedYes, _votedNo, _resigned);
     }
-    
-    
+
+
     function finishCarrierProposal(uint proposalIndex) public{
         (bool error, string memory message, uint votedYes, uint votedNo, uint resigned) = beforeFinishCarrierProposal(proposalIndex);
         require (!error, message);
@@ -886,7 +892,7 @@ contract VotingCarrier {
                     carrierVoters[carrierId-1].enabled = true;
                     carriers.setBanCarrier(actionAddress ,false);
                 }
-            } 
+            }
             if (carrierProposals[proposalIndex].actionType == 1 && (carrierId != 0 && carrierVoters[carrierId-1].enabled) && carrierVotersLength > 2) { // Remove Voter
                 carrierVoters[carrierId-1] = carrierVoters[carrierVotersLength-1]; // Copy last item on removed position and
                 carrierVoters.length--; // decrease length
@@ -900,18 +906,18 @@ contract VotingCarrier {
 
     function statusOfCarrierProposal (uint index) public view returns (address[] memory, uint8[] memory) {
         require(carrierProposals.length > index, "Carrier proposal not exist");
-    
+
         address[] memory addr = new address[](carrierVoters.length);
         uint8[] memory vote = new uint8[](carrierVoters.length);
         uint pom = 0;
         for(uint i = 0; carrierVoters.length > i; i++){
             if(carrierProposals[index].status[carrierVoters[i].addr].voted){
-                addr[pom] = carrierVoters[i].addr; 
+                addr[pom] = carrierVoters[i].addr;
                 vote[pom] = carrierProposals[index].status[carrierVoters[i].addr].vote;
                 pom++;
             }
         }
-        
+
         return (addr, vote);
     }
 
@@ -922,7 +928,7 @@ contract VotingCarrier {
     function VotersLength () public view returns (uint) {
         return carrierVoters.length;
     }
-    
+
     function findCarrierVoterIndex(address addr) private view returns (uint) {
         for(uint i = 0; carrierVoters.length > i; i++){
             if(carrierVoters[i].addr == addr)
@@ -954,9 +960,9 @@ contract TransportH {
 
     event NewCarrier(address _companyWallet, bytes32 _company, bytes32 _web, uint _index);
     event CarrierUpdated(address _companyWallet, bytes32 _company, bytes32 _web, uint _index);
-    
+
     event TripEvent(address _trip, uint _tripId, string _eventType);
-    
+
     event PurchasedTickets(address _trip, uint _tripId, uint _tickets, address _buyerAddr, uint _price, uint _time);
     event RefundedTickets(address _trip, uint _tripId, uint _tickets, address _buyerAddr);
 
@@ -968,7 +974,7 @@ contract TransportH {
     TripStruct[] public trips;
 
     function emitTripUpdateEvent(uint _tripId, string memory updateType) public onlyTrip{
-        emit TripEvent(msg.sender, _tripId, updateType); 
+        emit TripEvent(msg.sender, _tripId, updateType);
     }
 
     function emitPurchasedTicket (uint _tripId, uint _tickets, address _buyerAddr, uint _price, uint _time) public onlyTrip{
@@ -989,7 +995,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
         bytes10 toLat;
         bytes11 toLng;
     }
-    
+
     struct Ticket {
         address buyer;
         address agency;
@@ -997,14 +1003,14 @@ contract Trip is Ownable, ERC223ReceivingContract{
         bool purchased;
         bool refunded;
     }
-    
+
     struct TicketInTime {
         uint16 tickets;
         uint[] indexes;
     }
-    
+
     event Charged(address carrierAddress, uint amount, address tripContract);
-    
+
     FloteaToken token;
     Transport transport;
     uint carrierId;
@@ -1031,7 +1037,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
         token = FloteaToken(transport.tokenAddress());
         carrierId = _carrierId;
         tripId = _tripId;
-        tripLoc = _tripLoc;    
+        tripLoc = _tripLoc;
         price = _price;
         schedule = _schedule;
         places = _places;
@@ -1039,7 +1045,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
         routeType = _routeType;
         enabled = _enabled;
     }
-    
+
     function setArribute(TripLoc memory _tripLoc, uint _price,
         bytes[] memory _schedule, uint16 _places, bytes memory _description) public onlyTripOwner {
         tripLoc = _tripLoc;
@@ -1054,18 +1060,18 @@ contract Trip is Ownable, ERC223ReceivingContract{
         description = _description;
         transport.emitTripUpdateEvent(tripId, "setArribute");
     }
-    
+
     function setVehicle(TransportH.RouteType _routeType) public onlyTripOwner{
         routeType = _routeType;
         transport.emitTripUpdateEvent(tripId, "setVehicle");
     }
-    
+
     function setEnabled(bool _enabled) public onlyTripOwner{
         enabled = _enabled;
         transport.setEnabled(_enabled);
         transport.emitTripUpdateEvent(tripId, "setEnabled");
     }
-    
+
     function info() public view returns(address carrierAddress, uint _carrierId, TripLoc memory _tripLoc,
         uint _price, bytes[] memory _schedule, uint16 _places, bytes memory _description, bool _enabled, address _token, TransportH.RouteType _routeType){
         return(transport.getCarriers().getCarrierAddress(carrierId), carrierId, tripLoc, price, schedule, places, description, enabled, address(token), routeType);
@@ -1082,7 +1088,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
     function getTripId () public view returns(uint) {
         return tripId;
     }
-    
+
     function refund(address _buyer, uint _time, uint _count) public onlyTripOwner {
         uint founded = 0;
         TicketInTime memory purchasedTicket = purchasedTicketInTime[_time]; // Tickets in time
@@ -1113,7 +1119,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
         }
         return (tempAddreses, tempTimes);
     }
-    
+
     function getTickets(uint _time) public view returns(uint16 ticketsArray, uint[] memory indexesArray){
         return (purchasedTicketInTime[_time].tickets, purchasedTicketInTime[_time].indexes);
     }
@@ -1125,7 +1131,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
         }
         return 0;
     }
-    
+
     function charge(address _to) public onlyTripOwner {
         address[] memory agencies;
         uint[] memory tocharge;
@@ -1141,7 +1147,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
                         tocharge[al] += price / 10; // 10%
                         al++;
                     } else {
-                        tocharge[index-1] += price / 10; // 10%    
+                        tocharge[index-1] += price / 10; // 10%
                     }
                     carrier += price - price * 101 / 1000; // price - 0,1% - 10%
                 } else {
@@ -1151,7 +1157,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
                 tickets[i].purchased = true;
             }
         }
-        if(_to == address(0)){ 
+        if(_to == address(0)){
             _to = transport.getCarriers().getCarrierAddress(carrierId);
         }
         emit Charged(_to, carrier, address(this));
@@ -1178,8 +1184,8 @@ contract Trip is Ownable, ERC223ReceivingContract{
         return( true, "Not enough tickets");
         return(false, "ok");
     }
-    
-    
+
+
     // Buing ticket
     function tokenFallback(address _from, uint _value, bytes memory _data) public {
         require(msg.sender == address(token), "This funcion must be called from Flotea Token");
@@ -1189,7 +1195,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
         require(time > now, "The trip at this time is over");
         TicketInTime memory purchasedTicket = purchasedTicketInTime[time];
         require (places - purchasedTicket.tickets >= count , "Not enough tickets");
-        
+
         transport.emitPurchasedTicket(tripId, count, _from, price, time);
 
         for(uint i=0; i < count; i++){
@@ -1198,11 +1204,11 @@ contract Trip is Ownable, ERC223ReceivingContract{
             tickets.push( Ticket(_from, agency, time, false, false) );
         }
     }
-    
-    // 
+
+    //
     function decodeBytes(bytes memory b) private pure returns (uint, uint, address){
         address agency;
-        uint pos = 0; 
+        uint pos = 0;
         if(b.length>20){
             assembly {
                 agency := mload(add(b,20))
@@ -1215,7 +1221,7 @@ contract Trip is Ownable, ERC223ReceivingContract{
         for(uint i=pos;i<pos+2;i++){
             if(b[i] != 0 && p == -1){
                 p = int(i);
-            } 
+            }
             if(p!=-1){
                 count = count + uint8(b[i])*(2**(8*(2-(i+1-pos))));
             }
@@ -1233,7 +1239,7 @@ contract Transport is TransportH{
     constructor(address _tokenAddress, address _votingCarrierAddress, address _carriersAddress, address _floteaIcoAddress) public {
         tokenAddress = _tokenAddress;
         floteaIcoAddress = _floteaIcoAddress;
-        
+
         VotingCarrier votingCarrier = VotingCarrier(_votingCarrierAddress);
         carriers = CarriersInterface(_carriersAddress);
         carriers.init();
@@ -1243,16 +1249,16 @@ contract Transport is TransportH{
     function approve() public {
         FloteaToken(tokenAddress).approve(floteaIcoAddress, 10**11); // Approve to transfer tokens from Transport
     }
-    
+
 
     function tripsLength() public view returns(uint length){
-        return trips.length;    
+        return trips.length;
     }
 
     function getCarriers() public view returns(CarriersInterface) {
         return carriers;
     }
-    
+
     function setEnabled(bool _enabled) public {
         require(trips.length > 0 && trips[tripsId[msg.sender]].addr == msg.sender, "Only contract Trip can call this method");
         trips[tripsId[msg.sender]].enabled = _enabled;
@@ -1265,17 +1271,17 @@ contract Transport is TransportH{
         else
             emit CarrierUpdated(_companyWallet, _company, _web, _index);
     }
-    
+
     function createTrip (Trip.TripLoc memory _tripLoc, uint _price,
     bytes[] memory _schedule, uint16 _places, bytes memory _description,
     RouteType _routeType, bool _enabled) public {
         (bool error, string memory message, uint carrierId) = carriers.testCarrier(msg.sender);
         require (!error, message);
-        
+
         Trip newTrip = new Trip(
             carrierId, trips.length,
             _tripLoc,
-            _price, _schedule, _places, 
+            _price, _schedule, _places,
             _description, _routeType, _enabled
         );
         carriers.addTrip(carrierId, address(newTrip));
@@ -1293,7 +1299,7 @@ contract Carriers is CarriersInterface{
         bytes32 web;
         bool enabled;
         address[] trips;
-        bool exist; 
+        bool exist;
     }
 
     Carrier[] public carriers;
@@ -1307,7 +1313,7 @@ contract Carriers is CarriersInterface{
 
     function init() public {
         require(address(transport) == address(0), "Contract is already initialized");
-        transport = Transport(msg.sender); 
+        transport = Transport(msg.sender);
     }
 
     function updateCarrier(bytes32 _company, bytes32 _web) public {
@@ -1324,7 +1330,7 @@ contract Carriers is CarriersInterface{
     }
 
     function carrierLength() public view returns(uint length){
-        return carriers.length;    
+        return carriers.length;
     }
 
     function getCarrierId(address _companyWallet) public view returns(uint carrierId){
@@ -1337,10 +1343,10 @@ contract Carriers is CarriersInterface{
         uint id = carriersId[_companyWallet];
         return (carriers[id].companyWallet == _companyWallet, id);
     }
-    
+
     function getCarrierData(address _companyWallet) public view returns(bool exist, uint id, bytes32 company, bytes32 web){
         uint _id = carriersId[_companyWallet];
-        if(_id == carriers.length || carriers[_id].companyWallet != _companyWallet) 
+        if(_id == carriers.length || carriers[_id].companyWallet != _companyWallet)
             return (false, _id, "", "");
         else
             return (true, _id, carriers[_id].company, carriers[_id].web);
@@ -1363,9 +1369,9 @@ contract Carriers is CarriersInterface{
 
     function addCarrier( bytes32 _company, bytes32 _web, address payable _companyWallet ) public {
         require(msg.sender == votingCarrierAddress, "Only contract VotingCarrier can call this method");
-        address[] memory _trips; 
+        address[] memory _trips;
         transport.emitCarrier(true, _companyWallet, _company, _web, carriers.length);
-  
+
         carriersId[_companyWallet] = carriers.length;
         carriers.push(Carrier(_companyWallet, _company, _web, true, _trips, true));
     }
@@ -1382,5 +1388,5 @@ contract Carriers is CarriersInterface{
         require(msg.sender == address(transport), "Only contract VotingCarrier can call this method");
     	carriers[_carrierId].trips.push(_tripAddress);
     }
- 
+
 }
