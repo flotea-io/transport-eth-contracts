@@ -12,6 +12,6 @@
   "dependencies": {
     "sol-merger": "^2.0.1",
     "solc": "^0.5.1",
-    "truffle": "^5.1.23"
+    "truffle": "^5.7.9"
   }
 }
